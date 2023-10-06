@@ -14,14 +14,43 @@ description = "TeamVoided Template Mod"
 
 repositories {
     mavenCentral()
+    maven {
+        name = "brokenfuseReleases"
+        url = uri("https://maven.teamvoided.org/releases")
+    }
+    maven("https://libs.azuredoom.com:4443/mods")
+
 }
+val modid = base.archivesName.get()
+
 
 modSettings {
-    modId(base.archivesName.get())
+    modId(modid)
     modName("Team Voided Template Mod")
 
-    entrypoint("main", "org.teamvoided.templatemod.TemplateMod::commonInit")
-    entrypoint("client", "org.teamvoided.templatemod.TemplateMod::clientInit")
+    entrypoint("main", "org.teamvoided.template.Template::commonInit")
+    entrypoint("client", "org.teamvoided.template.Template::clientInit")
+    entrypoint("fabric-datagen", "org.teamvoided.template.TemplateData")
+}
+
+loom {
+    runs {
+        create("data") {
+            client()
+            ideConfigGenerated(true)
+            vmArg("-Dfabric-api.datagen")
+            vmArg("-Dfabric-api.datagen.output-dir=${file("src/main/generated")}")
+            vmArg("-Dfabric-api.datagen.modid=${modid}")
+            runDir("build/datagen")
+        }
+    }
+}
+
+dependencies{
+//    modImplementation("org.teamvoided:voidlib-core:1.5.7+1.20.1")
+    modImplementation(files("voidlib-core-1.5.7+1.20.1.jar"))
+
+    modImplementation ("mod.azure.azurelib:azurelib-fabric-1.20.1:1.0.31")
 }
 
 tasks {
@@ -40,3 +69,4 @@ tasks {
         withSourcesJar()
     }
 }
+sourceSets["main"].resources.srcDir("src/main/generated")
